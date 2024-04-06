@@ -2,7 +2,7 @@ FROM node:alpine3.18
 
 # Declare build time environment variable
 ARG NODE_ENV
-ARG MONGO_DB_PASSWORD
+ARG POSTGRES_DB_DATABASE_URL
 
 # Set the environment variable
 ENV NODE_ENV=$NODE_ENV
