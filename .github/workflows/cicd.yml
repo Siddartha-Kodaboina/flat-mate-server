@@ -1,0 +1,33 @@
+name: Deploy Flat-mate Server Side Node Application
+
+on:
+  push:
+    branches:
+      - master
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build docker image
+        run: docker build -t stevesiddu49/flat-mate-server .
+          --build-arg NODE_ENV='production'
+          --build-arg POSTGRES_DB_DATABASE_URL='${{ secrets.POSTGRES_DB_DATABASE_URL }}'
+      - name: Publish image to dockerhub
+        run: docker push stevesiddu49/flat-mate-server:latest
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Current working directory
+        run: pwd
+      - name: Pull image from dockerhub
+        run: docker pull stevesiddu49/flat-mate-server:latest
+      - name: Delete old Container
+        run: docker rm -f flat-mate-server-container
+      - name: Run Docker Container
+        run: docker run -d -p 4000:4000 --name flat-mate-server-container stevesiddu49/flat-mate-server 
