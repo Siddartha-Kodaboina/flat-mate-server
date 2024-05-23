@@ -3,6 +3,7 @@ const router = express.Router();
 const vacancyController = require('./vacancy.controller');
 
 router.get('/', vacancyController.listVacancies);
+router.get('/filters', vacancyController.listVacanciesByFilters);
 router.post('/', vacancyController.createVacancy);
 router.get('/community_id/:community_id', vacancyController.getVacancyByCommunityID);
 router.get('/id/:id', vacancyController.getVacancy);

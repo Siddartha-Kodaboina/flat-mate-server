@@ -6,7 +6,8 @@ const sequelize = new Sequelize(process.env.POSTGRES_DB_DATABASE_URL, {
         ssl: {
             require: true,
             rejectUnauthorized: true
-        }
+        },
+        connectTimeout: 6000 
     }
 });
 

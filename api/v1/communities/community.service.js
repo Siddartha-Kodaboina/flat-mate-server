@@ -54,6 +54,13 @@ const getAllCommunities = async () => {
   return await Community.findAll();
 };
 
+const getAllCommunitiesByCityName = async (city) => {
+  return await Community.findAll({
+    attributes: ['id'],
+    where: { city: city},
+});
+};
+
 module.exports = {
   createCommunity,
   getCommunityByPlaceID,
@@ -62,5 +69,6 @@ module.exports = {
   updateCommunity,
   deleteCommunityByPlaceID,
   deleteCommunity,
-  getAllCommunities
+  getAllCommunities,
+  getAllCommunitiesByCityName
 };

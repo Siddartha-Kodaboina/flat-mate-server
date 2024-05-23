@@ -1,4 +1,7 @@
 const vacancyService = require('./vacancy.service');
+const communityService = require('../communities/community.service');
+const customerService = require('../customers/customer.service');
+const roomService = require('../rooms/room.service');
 
 const createVacancy = async (req, res) => {
   try {
@@ -77,8 +80,35 @@ const deleteVacancy = async (req, res) => {
 
 const listVacancies = async (req, res) => {
   try {
-    const vacancys = await vacancyService.getAllVacancies();
-    res.status(200).json(vacancys);
+    const vacancies = await vacancyService.getAllVacancies();
+    res.status(200).json(vacancies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const listVacanciesByFilters = async (req, res) => {
+  try {
+    const city = req.query.city;
+    const vacancies = await vacancyService.getAllVacancies();
+    const communitiesInCity =  await communityService.getAllCommunitiesByCityName(city);
+    const communitiesInCityIds = communitiesInCity.map(communityInCity => communityInCity.dataValues.id);
+    const filteredVacancies = vacancies.filter((vacancy) => communitiesInCityIds.includes(vacancy.dataValues.id));
+    const filteredVacanciesFullDetailsPromises = filteredVacancies.map(async (vacancy) => { 
+      const customerObject = await customerService.getCustomerById(vacancy.dataValues.customerId);
+      const communityObject = await communityService.getCommunityById(vacancy.dataValues.communityId);
+      const roomObject = await roomService.getRoomById(vacancy.dataValues.roomId);
+      
+      return {
+        customerObject,
+        communityObject,
+        roomObject
+      };
+    });
+
+    // Use Promise.all to wait for all the promises to resolve
+    const filteredVacanciesFullDetails = await Promise.all(filteredVacanciesFullDetailsPromises);
+    res.status(200).json({filteredVacanciesFullDetails});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -92,5 +122,6 @@ module.exports = {
   updateVacancy,
   deleteVacancyByCommunityID,
   deleteVacancy,
-  listVacancies
+  listVacancies,
+  listVacanciesByFilters
 };
