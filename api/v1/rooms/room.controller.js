@@ -2,7 +2,6 @@ const roomService = require('./room.service');
 
 const createRoom = async (req, res) => {
   try {
-    console.log("In create room :", req.body);
     const room = await roomService.createRoom(req.body);
     
     res.status(201).json(room);
@@ -25,6 +24,19 @@ const getRoomByCommunityID = async (req, res) => {
     }
 }
 
+const getAllRoomsByCommunityID = async (req, res) => {
+  try{
+      const room = await roomService.getAllRoomsByCommunityID(req.params.community_id);
+      if (room) {
+          res.status(200).json(room);
+      } else {
+      res.status(404).json({ message: 'Room not found' });
+      }
+  }catch{
+      res.status(500).json({ error: error.message });
+  }
+}
+
 const getRoom = async (req, res) => {
   try {
     const room = await roomService.getRoomById(req.params.id);
@@ -40,7 +52,6 @@ const getRoom = async (req, res) => {
 
 const updateRoomByCommunityID = async (req, res) => {
     try {
-        console.log('Updating Room ', req.params);
       const room = await roomService.updateRoomByCommunityID(req.params.community_id, req.body);
       res.status(200).json(room);
     } catch (error) {
@@ -87,6 +98,7 @@ const listRooms = async (req, res) => {
 module.exports = {
   createRoom,
   getRoomByCommunityID,
+  getAllRoomsByCommunityID,
   getRoom,
   updateRoomByCommunityID,
   updateRoom,

@@ -1,29 +1,37 @@
 const sequelize = require("../../../postgres-sequelize-db");
 const customerService = require('../customers/customer.service');
 const communityService = require('../communities/community.service');
+const communityInfoController = require('../communitiesInfo/communityInfo.controller');
+const communityController = require('../communities/community.controller');
 const roomService = require('../rooms/room.service');
 const vacancyService = require('../vacancies/vacancy.service');
 
 const createVacancyRequest = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    console.log("In create vacancy :", req.body);
+    // console.log("In create vacancy :", req.body);
     if (!req.body.customer.firstName || !req.body.customer.lastName){
         const displayNameList = req.body.customer.displayName.split(' ');
         req.body.customer.firstName = (displayNameList.length >= 1)? displayNameList[0]: '';
         req.body.customer.lastName = (displayNameList.length >= 2)? displayNameList[1]: displayNameList[0];
     }
     const [customer, isCustomerCreated] = await customerService.getOrCreateCustomerByUID(req.body.customer, {transaction});
-    const community = await communityService.createCommunity(req.body.community, {transaction});
-    console.log("Created customer :", customer.id);
-    console.log("isCustomerCreated customer :", isCustomerCreated);
-    console.log("Created community :", community.id);
+    // const community = await communityController.createCommunity(req.body.community, {transaction});
+    // Assuming transaction is already defined in your context
+    const community = await communityController.createCommunity({ body: req.body.community, from: 'vacancyRequest'}, res, { transaction });
+
+    const comunityInfo = await communityInfoController.createCommunityInfo({
+        body: {...req.body.communityInfo, communityId: community.id}, 
+        from: 'vacancyRequest', 
+    }, res, {transaction});
+
     const room = await roomService.createRoom({
         ...req.body.room, 
         communityId: community.id
     },{transaction});
+
     
-    console.log("Created room :", room.id);
+    
     const vacancy = await vacancyService.createVacancy({
         ...req.body.vacancy,
         customerId: customer.id,
@@ -41,6 +49,7 @@ const createVacancyRequest = async (req, res) => {
         message: "Resource created successfully.",
         data: {
             customer, 
+            comunityInfo,
             community, 
             room,
             vacancy

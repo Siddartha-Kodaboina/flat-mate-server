@@ -33,42 +33,6 @@ Community.init(
         },
       },
     },
-    amenities: { 
-        type: DataTypes.STRING, 
-        allowNull: false,
-    },
-    averageRent: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      field: "avg_rent",
-      set(value) {
-        this.setDataValue('averageRent', value === "" ? null : value);
-      },
-      validate: {
-        isNumericOrNull(value) {
-          if (value !== null && value !== "" && isNaN(Number(value))) {
-            throw new Error("Please enter a valid average community rent");
-          }
-        }
-      },
-    },
-    communityDescription: { 
-        type: DataTypes.STRING, 
-        allowNull: true,
-        field: "description",
-    },
-    websiteURL: {
-        type: DataTypes.STRING, 
-        allowNull: true,
-        field: "url",
-        validate: {
-          isUrlOrNull(value) {
-            if (value && !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(value)) {
-              throw new Error("Please enter a valid URL");
-            }
-          }
-        },
-    },
     photos: {
         type: DataTypes.JSONB, 
         allowNull: true,
@@ -89,6 +53,9 @@ Community.init(
     country_code: {
         type: DataTypes.STRING, 
         allowNull: false,
+    },
+    openings: { 
+      type: DataTypes.INTEGER, 
     },
   },
   {

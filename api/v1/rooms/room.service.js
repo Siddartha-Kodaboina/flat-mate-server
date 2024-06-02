@@ -10,6 +10,12 @@ const getRoomByCommunityID = async (community_id) => {
     });
 }
 
+const getAllRoomsByCommunityID = async (community_id) => {
+  return await Room.findAll({
+      where: { community_id: community_id},
+  });
+}
+
 const getRoomById = async (id) => {
   return await Room.findByPk(id);
 };
@@ -57,6 +63,7 @@ const getAllRooms = async () => {
 module.exports = {
   createRoom,
   getRoomByCommunityID,
+  getAllRoomsByCommunityID,
   getRoomById,
   updateRoomByCommunityID,
   updateRoom,

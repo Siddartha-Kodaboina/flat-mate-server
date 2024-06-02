@@ -1,16 +1,48 @@
+const { uploadImageFromUrl } = require('../../../s3.config');
 const communityService = require('./community.service');
 
-const createCommunity = async (req, res) => {
+const createCommunity = async (req, res, options = {}) => {
   try {
-    console.log("In create community :", req.body);
-    const community = await communityService.createCommunity(req.body);
-    
-    res.status(201).json(community);
+      const photoUrls = req.body.photos;
+
+      const bucketName = process.env.AWS_BUCKET_NAME;
+      const folderName = req.body.place_id; 
+
+      const communityIfExist = await communityService.getCommunityByPlaceID(folderName);
+      if (communityIfExist){
+        console.log("Exiting from communityIfExist");
+        const updatedCommunity = await communityService.incrementOpenings(folderName);
+        if(req.from && req.from=='vacancyRequest'){
+          return updatedCommunity;
+        }
+        res.status(201).json(updatedCommunity);
+      }
+      console.log("Seems like it's not exiting from communityIfExist");
+      const uploadPromises = photoUrls.map((photo, index) => {
+          const fileName = `image#${index + 1}.jpg`;
+          return uploadImageFromUrl(photo[2], bucketName, folderName, fileName); 
+      });
+ 
+      const uploadedImageUrls = await Promise.all(uploadPromises);
+
+      const communityData = {
+          ...req.body,
+          openings: 1,
+          photos: uploadedImageUrls
+      };
+
+      const community = await communityService.createCommunity(communityData, options);
+      if (!community) throw new Error('Failed to create community');
+      if(req.from && req.from=='vacancyRequest'){
+        return community;
+      }
+      res.status(201).json(community);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: error.message });
+      console.log(error);
+      res.status(500).json({ error: error.message });
   }
 };
+
 
 const getCommunityByPlaceID = async (req, res) => {
     try{
@@ -18,7 +50,7 @@ const getCommunityByPlaceID = async (req, res) => {
         if (community) {
             res.status(200).json(community);
         } else {
-        res.status(404).json({ message: 'Community not found' });
+            res.status(404).json({ message: 'Community not found' });
         }
     }catch{
         res.status(500).json({ error: error.message });
@@ -40,7 +72,6 @@ const getCommunity = async (req, res) => {
 
 const updateCommunityByPlaceID = async (req, res) => {
     try {
-        console.log('Updating Community ', req.params);
       const community = await communityService.updateCommunityByPlaceID(req.params.place_id, req.body);
       res.status(200).json(community);
     } catch (error) {

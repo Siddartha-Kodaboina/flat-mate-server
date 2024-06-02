@@ -1,6 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../../../postgres-sequelize-db");
-
 class Customer extends Model {}
 
 Customer.init(

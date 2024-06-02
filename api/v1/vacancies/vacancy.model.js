@@ -50,7 +50,12 @@ Vacancy.init(
         type: DataTypes.STRING,
         allowNull: false,
         field: 'tenant_requirements',
-    }
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'open',
+    },
   },
   {
     sequelize,

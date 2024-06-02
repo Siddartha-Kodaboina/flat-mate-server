@@ -61,6 +61,17 @@ const getAllCommunitiesByCityName = async (city) => {
 });
 };
 
+const incrementOpenings = async (place_id) => {
+  const community = await Community.findOne({
+    where: { place_id: place_id },
+  });
+  if (community) {
+    community.openings += 1;
+    return await community.save();
+  }
+  throw new Error('community not found');
+};
+
 module.exports = {
   createCommunity,
   getCommunityByPlaceID,
@@ -70,5 +81,6 @@ module.exports = {
   deleteCommunityByPlaceID,
   deleteCommunity,
   getAllCommunities,
-  getAllCommunitiesByCityName
+  getAllCommunitiesByCityName,
+  incrementOpenings
 };

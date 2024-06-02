@@ -5,7 +5,6 @@ const roomService = require('../rooms/room.service');
 
 const createVacancy = async (req, res) => {
   try {
-    console.log("In create vacancy :", req.body);
     const vacancy = await vacancyService.createVacancy(req.body);
     
     res.status(201).json(vacancy);
@@ -28,6 +27,19 @@ const getVacancyByCommunityID = async (req, res) => {
     }
 }
 
+const getAllVacancyByCommunityID = async (req, res) => {
+  try{
+      const vacancy = await vacancyService.getAllVacancyByCommunityID(req.params.community_id);
+      if (vacancy) {
+          res.status(200).json(vacancy);
+      } else {
+      res.status(404).json({ message: 'Vacancy not found' });
+      }
+  }catch{
+      res.status(500).json({ error: error.message });
+  }
+}
+
 const getVacancy = async (req, res) => {
   try {
     const vacancy = await vacancyService.getVacancyById(req.params.id);
@@ -43,7 +55,6 @@ const getVacancy = async (req, res) => {
 
 const updateVacancyByCommunityID = async (req, res) => {
     try {
-        console.log('Updating Vacancy ', req.params);
       const vacancy = await vacancyService.updateVacancyByCommunityID(req.params.community_id, req.body);
       res.status(200).json(vacancy);
     } catch (error) {
@@ -90,25 +101,50 @@ const listVacancies = async (req, res) => {
 const listVacanciesByFilters = async (req, res) => {
   try {
     const city = req.query.city;
-    const vacancies = await vacancyService.getAllVacancies();
-    const communitiesInCity =  await communityService.getAllCommunitiesByCityName(city);
-    const communitiesInCityIds = communitiesInCity.map(communityInCity => communityInCity.dataValues.id);
-    const filteredVacancies = vacancies.filter((vacancy) => communitiesInCityIds.includes(vacancy.dataValues.id));
-    const filteredVacanciesFullDetailsPromises = filteredVacancies.map(async (vacancy) => { 
-      const customerObject = await customerService.getCustomerById(vacancy.dataValues.customerId);
-      const communityObject = await communityService.getCommunityById(vacancy.dataValues.communityId);
-      const roomObject = await roomService.getRoomById(vacancy.dataValues.roomId);
-      
-      return {
-        customerObject,
-        communityObject,
-        roomObject
-      };
+
+    const communitiesInCity = await communityService.getAllCommunitiesByCityName(city);
+    const communityIdsInCity = communitiesInCity.map(community => community.id);
+
+    const openVacancies = await vacancyService.getOpenVacancies();
+    const communityIdsWithOpenVacancies = new Set(openVacancies.map(vacancy => vacancy.communityId));
+
+    const communitiesWithOpenVacancies = communitiesInCity.filter(community => 
+      communityIdsWithOpenVacancies.has(community.id)
+    );
+
+    const filteredCommunitiesFullDetailsPromises = communitiesWithOpenVacancies.map(async (community) => {
+      const communityObject = await communityService.getCommunityById(community.id);
+      return communityObject;
     });
 
-    // Use Promise.all to wait for all the promises to resolve
-    const filteredVacanciesFullDetails = await Promise.all(filteredVacanciesFullDetailsPromises);
-    res.status(200).json({filteredVacanciesFullDetails});
+    const filteredCommunitiesFullDetails = await Promise.all(filteredCommunitiesFullDetailsPromises);
+
+    res.status(200).json({ filteredCommunitiesFullDetails });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+const closeVacancy = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const vacancy = await vacancyService.closeVacancy(id);
+    res.status(200).json(vacancy);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getClosedVacancyById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const vacancy = await vacancyService.getClosedVacancyById(id);
+    if (vacancy) {
+      res.status(200).json(vacancy);
+    } else {
+      res.status(404).json({ message: 'Closed vacancy not found' });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -117,11 +153,14 @@ const listVacanciesByFilters = async (req, res) => {
 module.exports = {
   createVacancy,
   getVacancyByCommunityID,
+  getAllVacancyByCommunityID,
   getVacancy,
   updateVacancyByCommunityID,
   updateVacancy,
   deleteVacancyByCommunityID,
   deleteVacancy,
   listVacancies,
-  listVacanciesByFilters
+  listVacanciesByFilters,
+  closeVacancy,
+  getClosedVacancyById
 };

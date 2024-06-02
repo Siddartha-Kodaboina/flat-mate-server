@@ -94,17 +94,17 @@ Room.init(
         }
     },
     amenities: { 
-        type: DataTypes.STRING, 
+        type: DataTypes.TEXT, 
         allowNull: false,
     },
     do: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
     },
     dont: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
     },
     roomDescription: { 
-        type: DataTypes.STRING, 
+        type: DataTypes.TEXT, 
         allowNull: true,
         field: "description",
     },
@@ -121,6 +121,7 @@ Room.init(
     timestamps: false,
   }
 );
+
 
 module.exports = Room;
 

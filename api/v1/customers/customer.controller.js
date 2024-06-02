@@ -3,13 +3,11 @@ const customerService = require('./customer.service');
 const createCustomer = async (req, res) => {
   try {
     const body = req.body;
-    console.log("In create customer :", body);
     if (!body.firstName || !body.lastName){
         const displayNameList = body.displayName.split(' ');
         body.firstName = (displayNameList.length >= 1)? displayNameList[0]: '';
         body.lastName = (displayNameList.length >= 2)? displayNameList[1]: displayNameList[0];
     }
-    console.log("In create customer after:", body);
     const customer = await customerService.createCustomer(body);
     
     res.status(201).json(customer);
