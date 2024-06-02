@@ -3,6 +3,10 @@ FROM node:alpine3.18
 # Declare build time environment variable
 ARG NODE_ENV
 ARG POSTGRES_DB_DATABASE_URL
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_REGION
+ARG AWS_BUCKET_NAME
 
 # Set the environment variable
 ENV NODE_ENV=$NODE_ENV
