@@ -5,7 +5,7 @@ const getUserCurrentOpenings = async (userId) => {
 
     const currentOpenings = await Vacancy.findAll({
       where: { customerId: userId, status: 'open' },
-      include: [{ model: Community, attributes: ['title', 'photos'] }],
+      include: [{ model: Community, attributes: ['title', 'photos', 'place_id'] }],
     });
     console.log(`current openings: ${JSON.stringify(currentOpenings, null, 2)}`);
 
@@ -21,7 +21,7 @@ const getUserClosedOpenings = async (userId) => {
 
     const closedOpenings = await Vacancy.findAll({
       where: { customerId: userId, status: 'closed' },
-      include: [{ model: Community, attributes: ['title', 'photos'] }],
+      include: [{ model: Community, attributes: ['title', 'photos', 'place_id'] }],
     });
 
     return { openings: closedOpenings };

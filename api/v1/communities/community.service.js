@@ -72,6 +72,17 @@ const incrementOpenings = async (place_id) => {
   throw new Error('community not found');
 };
 
+const decrementOpenings = async (place_id) => {
+  const community = await Community.findOne({
+    where: { place_id: place_id },
+  });
+  if (community) {
+    community.openings -= 1;
+    return await community.save();
+  }
+  throw new Error('community not found');
+};
+
 module.exports = {
   createCommunity,
   getCommunityByPlaceID,
@@ -82,5 +93,6 @@ module.exports = {
   deleteCommunity,
   getAllCommunities,
   getAllCommunitiesByCityName,
-  incrementOpenings
+  incrementOpenings,
+  decrementOpenings
 };

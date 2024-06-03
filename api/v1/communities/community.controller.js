@@ -115,6 +115,15 @@ const listCommunities = async (req, res) => {
   }
 };
 
+const decrementOpenings = async (req, res) => {
+  try {
+    const updatedCommunity = await communityService.decrementOpenings(req.params.place_id);
+    res.status(200).json(updatedCommunity);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createCommunity,
   getCommunityByPlaceID,
@@ -123,5 +132,8 @@ module.exports = {
   updateCommunity,
   deleteCommunityByPlaceID,
   deleteCommunity,
-  listCommunities
+  listCommunities,
+  decrementOpenings
 };
+
+

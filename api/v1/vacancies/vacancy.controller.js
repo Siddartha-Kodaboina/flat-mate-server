@@ -128,7 +128,11 @@ const listVacanciesByFilters = async (req, res) => {
 
 const closeVacancy = async (req, res) => {
   const { id } = req.params;
+  const { place_id } = req.query;
   try {
+    if (place_id) {
+      await communityService.decrementOpenings(place_id);
+    }
     const vacancy = await vacancyService.closeVacancy(id);
     res.status(200).json(vacancy);
   } catch (error) {
