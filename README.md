@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <p align="center">
-  <img src="./images/logo.png" alt="Flatmate.pro Logo">
+  <img src="./images/home1.png" alt="Flatmate.pro Logo">
   <h1 align="center">Flatmate.pro</h1>
   <p align="center">
     Connecting People for Shared Housing Solutions
@@ -262,7 +262,7 @@ Each of these indices is crucial for maintaining quick response times and effici
 ![Search](./images/search.png)
 
 ### Create Vacancy
-![Create Vacancy](./images/create_vacancy.png)
+![Create Vacancy](./images/create.png)
 
 ## License
 
